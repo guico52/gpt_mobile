@@ -44,7 +44,7 @@ class SessionInfoState extends State<SessionInfo> {
     userId = widget.userId;
     robotId = widget.robotId;
     message = widget.message;
-    _textEditingController = widget._textEditingController;
+    _textEditingController = widget.textEditingController;
   }
 
   @override

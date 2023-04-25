@@ -68,50 +68,26 @@ class PromptPageState extends State<PromptPage> {
   void addNewPrompt() {
     showDialog(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
-              title: const Text('添加新的Prompt'),
-              content: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(
-                        labelText: '标题',
-                        hintText: '请输入prompt标题',
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: contentController,
-                      decoration: const InputDecoration(
-                        labelText: '内容',
-                        hintText: '请输入prompt内容',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      titleController.clear();
-                      contentController.clear();
-                    },
-                    child: const Text("取消")),
-                TextButton(
-                  onPressed: addNewPrompt,
-                  child: const Text("添加"),
-                ),
-              ],
-            ));
+        builder: (BuildContext context) => PromptAlertDialog(
+            titleController: titleController,
+            contentController: contentController,
+            callBackFunction: () => {
+                  setState(() {
+                    prompts.add(Prompt(
+                        id: Random().nextInt(100).toString(),
+                        title: titleController.text,
+                        content: contentController.text));
+                  }),
+                  Navigator.of(context).pop(),
+                  titleController.clear(),
+                  contentController.clear(),
+                }));
   }
 
   void updatePrompt(){
     showDialog(context: context, builder: (context) => PromptAlertDialog(
         titleController: titleController, contentController: contentController,
-        updatePrompt: () =>{
+        callBackFunction: () =>{
           setState(() {
             prompts.add(Prompt(id: Random().nextInt(100).toString(), title: titleController.text, content: contentController.text));
           }),
@@ -213,7 +189,7 @@ class PromptInfoState extends State<PromptInfo> {
     contentController.text = prompt.content;
     showDialog(context: context, builder: (context) => PromptAlertDialog(
         titleController: titleController, contentController: contentController,
-        updatePrompt: () =>{
+        callBackFunction: () =>{
           setState(() {
             prompt.title = titleController.text;
             prompt.content = contentController.text;

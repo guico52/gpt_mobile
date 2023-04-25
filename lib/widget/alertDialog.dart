@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class PromptAlertDialog extends StatelessWidget {
   final TextEditingController titleController;
   final TextEditingController contentController;
-  final VoidCallback updatePrompt;
+  final VoidCallback callBackFunction;
 
   const PromptAlertDialog({
     Key ?key,
     required this.titleController,
     required this.contentController,
-    required this.updatePrompt,
+    required this.callBackFunction,
   }) : super(key: key);
 
   @override
@@ -53,7 +53,7 @@ class PromptAlertDialog extends StatelessWidget {
                 ),
                 Expanded(
                   child: TextButton(
-                    onPressed: updatePrompt,
+                    onPressed: callBackFunction,
                     child: const Text("更新"),
                   ),
                 ),

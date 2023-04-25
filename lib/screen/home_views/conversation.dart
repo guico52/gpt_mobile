@@ -92,6 +92,7 @@ class ConversationPageState extends State<ConversationPage> {
                   userId: sessions[index].userId,
                   robotId: sessions[index].robotId,
                   message: sessions[index].message,
+                  textEditingController: _sessionTitleController,
                   deleteSession: () => {
                         deleteSession(sessions[index].sessionId),
                       });

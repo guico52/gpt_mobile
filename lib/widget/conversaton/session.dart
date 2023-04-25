@@ -7,6 +7,7 @@ class SessionInfo extends StatefulWidget {
   final String userId;
   final int robotId;
   final String message;
+  final TextEditingController textEditingController;
 
   // 回调函数，用于删除组件
   final VoidCallback deleteSession;
@@ -19,6 +20,7 @@ class SessionInfo extends StatefulWidget {
     required this.robotId,
     required this.message,
     required this.deleteSession,
+    required this.textEditingController,
   }); // 系统预设信息
 
   @override
@@ -32,7 +34,7 @@ class SessionInfoState extends State<SessionInfo> {
   late int robotId;
   late String message; // 系统预设信息
 
-  final TextEditingController _textEditingController = TextEditingController();
+  late TextEditingController _textEditingController;
 
   @override
   void initState() {
@@ -42,6 +44,7 @@ class SessionInfoState extends State<SessionInfo> {
     userId = widget.userId;
     robotId = widget.robotId;
     message = widget.message;
+    _textEditingController = widget._textEditingController;
   }
 
   @override

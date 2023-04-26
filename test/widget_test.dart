@@ -12,9 +12,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ohmygpt_mobile/entity/conversation.dart';
 
 Future<void> main() async {
-  String msg = '{"role":"user","text":"你好", "name":"1"}';
-  Message message = Message.fromJson(msg);
-  print(message);
 
 }
 

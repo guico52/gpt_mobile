@@ -1,19 +1,9 @@
-
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:ohmygpt_mobile/dao/dao.dart';
 import 'package:ohmygpt_mobile/widget/alertDialog.dart';
 
-class Prompt {
-  String id;
-  String title;
-  String content;
-
-  Prompt({
-    required this.id,
-    required this.title,
-    required this.content,
-  });
-}
+import '../../entity/prompt.dart';
 
 class PromptPage extends StatefulWidget {
   const PromptPage({Key? key}) : super(key: key);
@@ -26,10 +16,15 @@ class PromptPageState extends State<PromptPage> {
   TextEditingController titleController = TextEditingController();
   TextEditingController contentController = TextEditingController();
 
-  List<Prompt> prompts = [
-    Prompt(id: '1', title: '1', content: '1'),
-    Prompt(id: '2', title: '2', content: '2'),
-  ];
+  List<Prompt> prompts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _fetchPrompts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,18 +43,15 @@ class PromptPageState extends State<PromptPage> {
           ],
         ),
         body: ListView.builder(
-          key: Key(prompts.length.toString()),
+          key: Key(prompts.hashCode.toString()),
           itemCount: prompts.length,
           itemBuilder: (context, index) {
             return PromptInfo(
               prompt: prompts[index],
               titleController: titleController,
               contentController: contentController,
-              deletePrompt: () {
-                setState(() {
-                  prompts.removeAt(index);
-                });
-              },
+              deleteCallback: () => deleteCallBack(prompts[index].id),
+              updateCallback: () => updateCallBack(prompts[index]),
             );
           },
         ));
@@ -73,8 +65,10 @@ class PromptPageState extends State<PromptPage> {
             contentController: contentController,
             callBackFunction: () => {
                   setState(() {
-                    prompts.add(Prompt(
-                        id: Random().nextInt(100).toString(),
+                    _addPrompt(Prompt(
+                        // id为时间戳+随机数
+                        id: DateTime.now().millisecondsSinceEpoch.toString() +
+                            Random().nextInt(100).toString(),
                         title: titleController.text,
                         content: contentController.text));
                   }),
@@ -84,17 +78,45 @@ class PromptPageState extends State<PromptPage> {
                 }));
   }
 
-  void updatePrompt(){
-    showDialog(context: context, builder: (context) => PromptAlertDialog(
-        titleController: titleController, contentController: contentController,
-        callBackFunction: () =>{
-          setState(() {
-            prompts.add(Prompt(id: Random().nextInt(100).toString(), title: titleController.text, content: contentController.text));
-          }),
-          Navigator.of(context).pop(),
-          titleController.clear(),
-          contentController.clear(),
-        }));
+  void updateCallBack(Prompt prompt) {
+    showDialog(
+        context: context,
+        builder: (context) => PromptAlertDialog(
+            titleController: titleController,
+            contentController: contentController,
+            callBackFunction: () => {
+                  setState(() {
+                    _updatePrompt(Prompt(
+                        id: prompt.id,
+                        title: titleController.text,
+                        content: contentController.text));
+                  }),
+                  Navigator.of(context).pop(),
+                  titleController.clear(),
+                  contentController.clear(),
+                }));
+  }
+
+  void deleteCallBack(String id) {
+    deletePromptById(id);
+    _fetchPrompts();
+  }
+
+  Future<void> _fetchPrompts() async {
+    final prompts = await getAllPrompts();
+    setState(() {
+      this.prompts = prompts;
+    });
+  }
+
+  Future<void> _addPrompt(Prompt prompt) async {
+    insertPrompt(prompt);
+    _fetchPrompts();
+  }
+
+  Future<void> _updatePrompt(Prompt prompt) async {
+    updatePrompt(prompt);
+    _fetchPrompts();
   }
 }
 
@@ -103,14 +125,16 @@ class PromptInfo extends StatefulWidget {
   final TextEditingController titleController;
   final TextEditingController contentController;
 
-  final VoidCallback deletePrompt;
+  final VoidCallback deleteCallback;
+  final VoidCallback updateCallback;
 
-  const PromptInfo({super.key,
-    required this.prompt,
-    required this.deletePrompt,
-    required this.titleController,
-    required this.contentController
-  });
+  const PromptInfo(
+      {super.key,
+      required this.prompt,
+      required this.deleteCallback,
+      required this.titleController,
+      required this.contentController,
+      required this.updateCallback});
 
   @override
   State<StatefulWidget> createState() => PromptInfoState();
@@ -118,17 +142,20 @@ class PromptInfo extends StatefulWidget {
 
 class PromptInfoState extends State<PromptInfo> {
   late Prompt prompt;
-  late VoidCallback deletePrompt;
   late TextEditingController titleController;
   late TextEditingController contentController;
+
+  late VoidCallback deleteCallback;
+  late VoidCallback updateCallback;
 
   @override
   void initState() {
     super.initState();
     prompt = widget.prompt;
-    deletePrompt = widget.deletePrompt;
     titleController = widget.titleController;
     contentController = widget.contentController;
+    deleteCallback = widget.deleteCallback;
+    updateCallback = widget.updateCallback;
   }
 
   @override
@@ -172,7 +199,7 @@ class PromptInfoState extends State<PromptInfo> {
           ),
           const SizedBox(width: 16),
           GestureDetector(
-            onTap: deletePrompt,
+            onTap: deleteCallback,
             child: const Icon(
               Icons.delete,
               color: Color(0xFF999999),
@@ -187,17 +214,8 @@ class PromptInfoState extends State<PromptInfo> {
   void updatePrompt(){
     titleController.text = prompt.title;
     contentController.text = prompt.content;
-    showDialog(context: context, builder: (context) => PromptAlertDialog(
-        titleController: titleController, contentController: contentController,
-        callBackFunction: () =>{
-          setState(() {
-            prompt.title = titleController.text;
-            prompt.content = contentController.text;
-          }),
-          Navigator.of(context).pop(),
-          titleController.clear(),
-          contentController.clear(),
-        }));
+    updateCallback();
   }
+
 
 }

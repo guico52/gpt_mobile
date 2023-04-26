@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:ohmygpt_mobile/screen/home.dart';
+import 'package:ohmygpt_mobile/dao/dao.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+Future<void> main() async{
+  // 确定初始化
+  WidgetsFlutterBinding.ensureInitialized();
+  // 初始化数据库
+  await initDB();
+  // 运行应用
   runApp(const Home());
 }
 

@@ -53,8 +53,9 @@ class PromptAlertDialog extends StatelessWidget {
                 ),
                 Expanded(
                   child: TextButton(
+                    // 功能由callBack函数实现
                     onPressed: callBackFunction,
-                    child: const Text("更新"),
+                    child: const Text("确定"),
                   ),
                 ),
               ],

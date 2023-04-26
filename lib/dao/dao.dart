@@ -27,7 +27,7 @@ Future<void> updateMessage(Message message) async {
   await db.update("Message", message.toMap(), where: "id = ?", whereArgs: [message.id]);
 }
 
-Future<List<Message>> getAllMessages(String conversationId) async {
+Future<List<Message>> getMessagesByConversationId(String conversationId) async {
   final db = await getDB();
   final List<Map<String, dynamic>> maps = await db.query("Message", where: "conversation_id = ?", whereArgs: [conversationId]);
   return List.generate(maps.length, (i) {
@@ -76,7 +76,7 @@ Future<void> insertConversation(Conversation conversation) async {
 Future<Conversation> getConversationById(String id) async {
   final db = await getDB();
   final List<Map<String, dynamic>> maps = await db.query("Conversation", where: "id = ?", whereArgs: [id]);
-  List<Message> messages = await getAllMessages(id);
+  List<Message> messages = await getMessagesByConversationId(id);
   return Conversation(
     messages: messages,
     id: maps[0]['id'],
@@ -91,12 +91,14 @@ Future<Conversation> getConversationById(String id) async {
     stop: maps[0]['stop'],
   );
 }
+
 Session _sessionFromMap(Map<String, dynamic> map) {
   return Session(
     id: map['id'],
     title: map['title'],
   );
 }
+
 Future<void> deleteConversationById(String id) async {
   final db = await getDB();
   await db.delete("Conversation", where: "id = ?", whereArgs: [id]);
@@ -110,6 +112,10 @@ Future<List<Session>> getAllSessions() async{
   });
 }
 
+Future<void> updateConversationTitle(String id, String title) async {
+  final db = getDB();
+  db.then((value) => value.update("Conversation", {"title": title}, where: "id = ?", whereArgs: [id]));
+}
 // ================================================= Prompt ================================================
 Future<void> insertPrompt(Prompt prompt) async {
   final db = await getDB();

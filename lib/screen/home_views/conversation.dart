@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:ohmygpt_mobile/dao/dao.dart';
 
 import '../../entity/conversation.dart';
-import '../../entity/session.dart';
 
 class ConversationPage extends StatefulWidget {
   const ConversationPage({Key? key}) : super(key: key);
@@ -15,14 +14,12 @@ class ConversationPage extends StatefulWidget {
 }
 
 class ConversationPageState extends State<ConversationPage> {
-
   List<Session> sessions = [];
 
   @override
   void initState() {
     super.initState();
     _fetchSessions();
-
   }
 
   final TextEditingController _sessionTitleController = TextEditingController();
@@ -92,26 +89,26 @@ class ConversationPageState extends State<ConversationPage> {
     showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
-          title: const Text('删除会话'),
-          content: const Text('确定删除会话吗？'),
-          actions: [
-            TextButton(
-              child: const Text('取消'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('确定'),
-              onPressed: () {
-                setState(() {
-                  _deleteSession(sessionId);
-                });
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ));
+              title: const Text('删除会话'),
+              content: const Text('确定删除会话吗？'),
+              actions: [
+                TextButton(
+                  child: const Text('取消'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('确定'),
+                  onPressed: () {
+                    setState(() {
+                      _deleteSession(sessionId);
+                    });
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ));
   }
 
   Future<void> _fetchSessions() async {
@@ -123,7 +120,7 @@ class ConversationPageState extends State<ConversationPage> {
 
   void _addSession(String title) {
     String id = DateTime.now().millisecondsSinceEpoch.toString() +
-                Random().nextInt(100).toString();
+        Random().nextInt(100).toString();
     Conversation conversation = Conversation(
       id: id,
       title: title,
@@ -137,17 +134,13 @@ class ConversationPageState extends State<ConversationPage> {
     deleteConversationById(id);
     _fetchSessions();
   }
-
 }
 
 class Session {
   final String id;
   final String title;
 
-  Session({
-    required this.id,
-    required this.title
-  });
+  Session({required this.id, required this.title});
 }
 
 class SessionInfo extends StatefulWidget {
@@ -189,7 +182,7 @@ class SessionInfoState extends State<SessionInfo> {
     return Container(
       decoration: const BoxDecoration(
           border:
-          Border(bottom: BorderSide(width: 0.5, color: Color(0xffe5e5e5)))),
+              Border(bottom: BorderSide(width: 0.5, color: Color(0xffe5e5e5)))),
       padding: const EdgeInsets.only(top: 15, bottom: 15.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -202,11 +195,12 @@ class SessionInfoState extends State<SessionInfo> {
           const SizedBox(width: 16.0),
           Expanded(
               child: Text(
-                title,
-                style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.normal, height: 2),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              )),
+            title,
+            style: const TextStyle(
+                fontSize: 18.0, fontWeight: FontWeight.normal, height: 2),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          )),
           const SizedBox(width: 16.0),
           GestureDetector(
             onTap: updateTitle,
@@ -236,31 +230,35 @@ class SessionInfoState extends State<SessionInfo> {
     showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
-          title: const Text("修改标题"),
-          content: TextFormField(
-            controller: _textEditingController,
-            decoration: const InputDecoration(
-              hintText: "请输入新标题",
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("取消"),
-              // TODO: 修改标题
-              onPressed: () => {Navigator.pop(context)},
-            ),
-            TextButton(
-              child: const Text("确定"),
-              onPressed: () => {
-                setState(() {
-                  title = _textEditingController.text;
-                }),
-                Navigator.pop(context),
-                _textEditingController.clear()
-              },
-            )
-          ],
-        ));
+              title: const Text("修改标题"),
+              content: TextFormField(
+                controller: _textEditingController,
+                decoration: const InputDecoration(
+                  hintText: "请输入新标题",
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text("取消"),
+                  // TODO: 修改标题
+                  onPressed: () => {Navigator.pop(context)},
+                ),
+                TextButton(
+                  child: const Text("确定"),
+                  onPressed: () => {
+                    _updateTitle(id, _textEditingController.text),
+                    Navigator.pop(context),
+                    _textEditingController.clear()
+                  },
+                )
+              ],
+            ));
+  }
+
+  void _updateTitle(String id, String title) {
+    updateConversationTitle(id, title);
+    setState(() {
+      this.title = title;
+    });
   }
 }
-

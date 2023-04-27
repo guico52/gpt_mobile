@@ -66,6 +66,18 @@ Future<List<Message>> getUpMessages(String conversationId, String id) async{
   });
 }
 
+Future<Message> getMessageById(String id) async{
+  final db = await getDB();
+  final List<Map<String, dynamic>> maps = await db.query("Message", where: "id = ?", whereArgs: [id]);
+  return Message(
+    id: maps[0]['id'],
+    role: maps[0]['role'],
+    content: maps[0]['content'],
+    conversationId: maps[0]['conversation_id'],
+    upId: maps[0]['up_id'],
+  );
+}
+
 // ================================================= Conversation ================================================
 
 Future<void> insertConversation(Conversation conversation) async {

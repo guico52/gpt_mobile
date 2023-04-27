@@ -179,48 +179,52 @@ class SessionInfoState extends State<SessionInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-          border:
-              Border(bottom: BorderSide(width: 0.5, color: Color(0xffe5e5e5)))),
-      padding: const EdgeInsets.only(top: 15, bottom: 15.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          const Icon(
-            Icons.chat_bubble_outline,
-            color: Color(0xff999999),
-            size: 30,
-          ),
-          const SizedBox(width: 16.0),
-          Expanded(
-              child: Text(
-            title,
-            style: const TextStyle(
-                fontSize: 18.0, fontWeight: FontWeight.normal, height: 2),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          )),
-          const SizedBox(width: 16.0),
-          GestureDetector(
-            onTap: updateTitle,
-            child: const Icon(
-              Icons.edit_outlined,
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/chat', arguments: Session(id: id, title: title));
+      },
+      child: Container(
+        decoration: const BoxDecoration(
+            border:
+            Border(bottom: BorderSide(width: 0.5, color: Color(0xffe5e5e5)))),
+        padding: const EdgeInsets.only(top: 15, bottom: 15.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            const Icon(
+              Icons.chat_bubble_outline,
               color: Color(0xff999999),
               size: 30,
             ),
-          ),
-          const SizedBox(width: 16.0),
-          GestureDetector(
-            // TODO: 调用了回调函数，需要在函数体内添加删除请求
-            onTap: widget.deleteSession,
-            child: const Icon(
-              Icons.delete_forever_outlined,
-              color: Color(0xff999999),
-              size: 30,
+            const SizedBox(width: 16.0),
+            Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                      fontSize: 18.0, fontWeight: FontWeight.normal, height: 2),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )),
+            const SizedBox(width: 16.0),
+            GestureDetector(
+              onTap: updateTitle,
+              child: const Icon(
+                Icons.edit_outlined,
+                color: Color(0xff999999),
+                size: 30,
+              ),
             ),
-          )
-        ],
+            const SizedBox(width: 16.0),
+            GestureDetector(
+              onTap: widget.deleteSession,
+              child: const Icon(
+                Icons.delete_forever_outlined,
+                color: Color(0xff999999),
+                size: 30,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

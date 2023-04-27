@@ -75,10 +75,14 @@ class Conversation {
 
 class Message {
   String id;
-  String role;
+  int role;
   String content;
   String conversationId;
   String upId;
+
+  static const int ROLE_USER = 0;
+  static const int ROLE_BOT = 1;
+  static const int ROLE_SYSTEM = 2;
 
   Message(
       {required this.id,

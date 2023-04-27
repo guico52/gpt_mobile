@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:ohmygpt_mobile/screen/home_views/chat.dart';
 import 'package:ohmygpt_mobile/screen/home_views/conversation.dart';
 import 'package:ohmygpt_mobile/screen/home_views/prompt.dart';
 import 'package:ohmygpt_mobile/screen/home_views/setting.dart';
+
+import '../route.dart';
+
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Home',
-      home: HomePage(),
+      routes: routes,
+      home: const HomePage()
       );
   }
 }
+
 
 
 class HomePage extends StatefulWidget {

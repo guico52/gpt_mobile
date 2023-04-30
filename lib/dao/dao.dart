@@ -8,7 +8,7 @@ import '../screen/home_views/conversation.dart';
 Future<void> initDB() async {
   final db = await openDatabase("gpt.db", version: 1, onCreate: (db, version) async {
     await db.execute(
-        "CREATE TABLE Message (id TEXT PRIMARY KEY, content TEXT, role INTEGER, conversation_id INTEGER, up_id TEXT)");
+        "CREATE TABLE Message (id TEXT PRIMARY KEY, content TEXT, role INTEGER, conversation_id TEXT, up_id TEXT)");
     await db.execute("CREATE TABLE Conversation (id TEXT PRIMARY KEY, title TEXT, model TEXT, temperature REAL, top_p REAL, n INTEGER, stream INTEGER, max_tokens INTEGER, presence_penalty REAL, frequency_penalty REAL, stop TEXT)");
     await db.execute("CREATE TABLE Prompt (id TEXT PRIMARY KEY,title TEXT, content TEXT)");
   });
@@ -78,6 +78,16 @@ Future<Message> getMessageById(String id) async{
   );
 }
 
+Future<void> updateMessageUpIdById(String id , String upId) async{
+  final db = await getDB();
+  await db.update("Message", {"up_id": upId}, where: "id = ?", whereArgs: [id]);
+}
+
+Future<void> deleteMessageById(String id) async {
+  final db = await getDB();
+  await db.delete("Message", where: "id = ?", whereArgs: [id]);
+}
+
 // ================================================= Conversation ================================================
 
 Future<void> insertConversation(Conversation conversation) async {
@@ -96,13 +106,22 @@ Future<Conversation> getConversationById(String id) async {
     title: maps[0]['title'],
     temperature: maps[0]['temperature'],
     topP: maps[0]['top_p'],
-    stream: maps[0]['stream'],
+    stream: transformIntToBool(maps[0]['stream']),
     maxTokens: maps[0]['max_tokens'],
     presencePenalty: maps[0]['presence_penalty'],
     frequencyPenalty: maps[0]['frequency_penalty'],
     stop: maps[0]['stop'],
   );
 }
+
+bool transformIntToBool(int i) {
+  if (i == 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 
 Session _sessionFromMap(Map<String, dynamic> map) {
   return Session(

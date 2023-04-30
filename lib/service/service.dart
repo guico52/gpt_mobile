@@ -1,32 +1,30 @@
 import 'dart:convert';
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:ohmygpt_mobile/entity/conversation.dart';
 
-class OpenAIService {
-  final Dio _dio = Dio();
-  final String _baseUrl = 'https://api.openai.com/v1/engines/language-davinci/jobs';
 
-  Future<String> chat(String prompt) async {
-    try {
-      Response response = await _dio.post(
-        _baseUrl,
-        data: jsonEncode({
-          "prompt": prompt,
-          "max_tokens": 100,
-          "temperature": 1,
-        }),
+
+Future chatWithOpenAI(String json) async {
+  String apiKey = "sk-dIrwxhYDeRUtiJAcN1Bax5rxJrAcva0WlmxyuVBGwl9gWRNQ";
+  Response response;
+  try {
+    // 根据httpClient创建dio对象
+    var dio = Dio();
+    dio.httpClientAdapter = DefaultHttpClientAdapter();
+    response =
+    await dio.post(
+        "https://o-api-mirror01.gistmate.hash070.com/v1/chat/completions",
+        data: json,
         options: Options(
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer <YOUR_API_KEY>',
+            "Authorization": "Bearer $apiKey"
           },
-        ),
-      );
+          contentType: Headers.jsonContentType,
 
-      Map<String, dynamic> result = jsonDecode(response.data);
-      return result['choices'][0]['text'];
-    } catch (e) {
-      print(e);
-      return 'Error occured while communicating with the OpenAI language model.';
-    }
+        ));
+    return response;
+  } catch (e) {
+    print(e);
   }
 }

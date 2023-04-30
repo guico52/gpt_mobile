@@ -8,11 +8,22 @@
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ohmygpt_mobile/entity/conversation.dart';
 
-Future<void> main() async {
 
+const String url = "https://api.ohmygpt.com/v1/chat/completions";
+
+List<Message> messages = [Message(id: '123', role: 0, content: 'hello, are you chatGPT?', conversationId: '123', upId: null)];
+Conversation conversation = Conversation(title: 'new conversation', messages: messages, id: '123123123');
+
+
+
+Future<void> main() async {
+  debugPrint(conversation.toRequestJson());
+  var res = await chatWithOpenAI(conversation.toRequestJson());
+  debugPrint(res.toString());
 }
 
 Future chatWithOpenAI(String json) async {
@@ -31,7 +42,6 @@ Future chatWithOpenAI(String json) async {
             "Authorization": "Bearer $apiKey"
           },
           contentType: Headers.jsonContentType,
-
         ));
     return response;
   } catch (e) {

@@ -48,12 +48,12 @@ class Conversation {
       'model': model,
       'title': title,
       'temperature': temperature,
-      'topp': topP,
+      'top_p': topP,
       'n': n,
       'stream': stream ? 1 : 0, // 将bool转换为int,存储到数据库中
-      'maxtokens': maxTokens,
-      'presencepenalty': presencePenalty,
-      'frequencypenalty': frequencyPenalty,
+      'max_tokens': maxTokens,
+      'presence_penalty': presencePenalty,
+      'frequency_penalty': frequencyPenalty,
       'stop': stop,
     };
   }
@@ -64,22 +64,17 @@ class Conversation {
 }
 
 class Message {
-  String id;
+  String? id;
   int role;
   String content;
-  String conversationId;
+  String? conversationId;
   String? upId;
 
   static const int ROLE_USER = 0;
   static const int ROLE_BOT = 1;
   static const int ROLE_SYSTEM = 2;
 
-  Message(
-      {required this.id,
-      required this.role,
-      required this.content,
-      required this.conversationId,
-      required this.upId});
+  Message({required this.role, required this.content, required this.id, this.conversationId, this.upId});
 
   // 用于发送请求，因此不需要id
   String toRequestJson() {

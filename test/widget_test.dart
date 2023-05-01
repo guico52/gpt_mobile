@@ -6,43 +6,49 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 
-import 'package:dio/adapter.dart';
-import 'package:dio/dio.dart';
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:ohmygpt_mobile/entity/conversation.dart';
+import 'package:ohmygpt_mobile/service/service.dart';
 
 
 const String url = "https://api.ohmygpt.com/v1/chat/completions";
 
 List<Message> messages = [Message(id: '123', role: 0, content: 'hello, are you chatGPT?', conversationId: '123', upId: null)];
-Conversation conversation = Conversation(title: 'new conversation', messages: messages, id: '123123123');
+Conversation conversation = Conversation(title: 'new conversation', messages: messages, id: '123123123', stream: true);
 
 
 
 Future<void> main() async {
   debugPrint(conversation.toRequestJson());
-  var res = await chatWithOpenAI(conversation.toRequestJson());
-  debugPrint(res.toString());
+  conversation.stream = false;
+  var res = await chatWithOpenAiWithoutStream(conversation.toRequestJson());
+  print(res.toString());
 }
+
 
 Future chatWithOpenAI(String json) async {
   String apiKey = "sk-dIrwxhYDeRUtiJAcN1Bax5rxJrAcva0WlmxyuVBGwl9gWRNQ";
-  Response response;
   try {
     // 根据httpClient创建dio对象
-    var dio = Dio();
-    dio.httpClientAdapter = DefaultHttpClientAdapter();
-    response =
-    await dio.post(
-        "https://o-api-mirror01.gistmate.hash070.com/v1/chat/completions",
-        data: json,
-        options: Options(
-          headers: {
-            "Authorization": "Bearer $apiKey"
-          },
-          contentType: Headers.jsonContentType,
-        ));
+    final client = http.Client();
+    final request = http.Request('POST', Uri.parse(url))
+    ..headers.addAll({
+      'Authorization': "Bearer $apiKey",
+      'Content-Type': 'application/json'
+    })
+    .. body = json;
+    final response = await client.send(request);
+    final stream = response.stream.transform(utf8.decoder);
+    print(stream.isEmpty);
+
+    // 监听流并输出数据
+    stream.listen((data) {
+      print('Data received: $data');
+    });
     return response;
   } catch (e) {
     print(e);

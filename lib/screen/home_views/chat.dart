@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:ohmygpt_mobile/entity/conversation.dart';
 import 'package:ohmygpt_mobile/entity/prompt.dart';
+import 'package:ohmygpt_mobile/service/service.dart';
 
 import '../../dao/dao.dart';
 import '../../widget/settingDialog.dart';
@@ -78,14 +79,15 @@ class ChatPageState extends State<ChatPage> {
               Flexible(
                 fit: FlexFit.loose,
                 child: ListView.builder(
-                  key: Key(_messages.hashCode.toString()),
+                  key: Key(_messages.hashCode.toString() +
+                      _messages.length.toString()),
                   itemCount: _messages.length,
                   itemBuilder: (context, index) {
                     return MessageBubble(
                       message: _messages[index],
                       prompts: _prompts,
                       deleteCallBack: () => {
-                        deleteMessageById(_messages[index].id)
+                        deleteMessageById(_messages[index].id!)
                             .then((value) => setState(() {
                                   _fetchMessages();
                                 }))
@@ -179,6 +181,15 @@ class ChatPageState extends State<ChatPage> {
     );
     insertMessage(message)
         .then((value) => {_textEditingController.clear(), _fetchMessages()});
+    if (!_conversation.stream) {
+      chatWithOpenAiWithoutStream(_conversation.toRequestJson())
+          .then((value) => {
+                insertMessage(value.message),
+                setState(() {
+                  _messages.add(value.message);
+                })
+              });
+    }
   }
 }
 
@@ -206,7 +217,7 @@ class MessageBubbleState extends State<MessageBubble> {
 
   late Message message;
   final List<String> _userRoles = ['用户', 'ChatGPT', '系统预设'];
-  int _selectedRoleIndex = 0;
+  late int _selectedRoleIndex ;
   bool _showPresetInput = false;
   bool _isEditing = false;
 
@@ -217,6 +228,7 @@ class MessageBubbleState extends State<MessageBubble> {
   void initState() {
     super.initState();
     message = widget.message;
+    _selectedRoleIndex = message.role;
     _deleteCallBack = widget.deleteCallBack;
     _prompts = widget.prompts;
     _bubbleEditingController = widget.bubbleEditingController;
@@ -237,6 +249,9 @@ class MessageBubbleState extends State<MessageBubble> {
             children: [
               _getIconByRole(), // ICON
               const SizedBox(width: 8),
+              if(!_isEditing)
+                Text(_userRoles[message.role])
+              else
               DropdownButton<String>(
                 value: _userRoles[_selectedRoleIndex],
                 items: [0, 1, 2]
@@ -260,32 +275,32 @@ class MessageBubbleState extends State<MessageBubble> {
                   child: SizedBox(
                       width: 150,
                       child: Autocomplete(
-                        onSelected: (Prompt prompt) {
-                          setState(() {
-                            message.content = prompt.content;
-                          });
-                        },
-                        optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text == '') {
-                            return const Iterable<Prompt>.empty();
-                          }
-                          return widget.prompts.where((prompt) =>
-                              prompt.content.contains(textEditingValue.text));
-                        },
-                        displayStringForOption: (Prompt option) => option.title,
-                        fieldViewBuilder: (BuildContext context,
-                            TextEditingController fieldTextEditingController,
-                            FocusNode fieldFocusNode,
-                            VoidCallback onFieldSubmitted) {
-                          return TextField(
-                            controller: fieldTextEditingController,
-                            focusNode: fieldFocusNode,
-                            decoration: const InputDecoration(
-                              hintText: '输入prompt标题',
-                            ),
-                          );
-                        }
-                      )),
+                          onSelected: (Prompt prompt) {
+                            setState(() {
+                              message.content = prompt.content;
+                            });
+                          },
+                          optionsBuilder: (TextEditingValue textEditingValue) {
+                            if (textEditingValue.text == '') {
+                              return const Iterable<Prompt>.empty();
+                            }
+                            return widget.prompts.where((prompt) =>
+                                prompt.content.contains(textEditingValue.text));
+                          },
+                          displayStringForOption: (Prompt option) =>
+                              option.title,
+                          fieldViewBuilder: (BuildContext context,
+                              TextEditingController fieldTextEditingController,
+                              FocusNode fieldFocusNode,
+                              VoidCallback onFieldSubmitted) {
+                            return TextField(
+                              controller: fieldTextEditingController,
+                              focusNode: fieldFocusNode,
+                              decoration: const InputDecoration(
+                                hintText: '输入prompt标题',
+                              ),
+                            );
+                          })),
                 ),
             ],
           ),
@@ -309,7 +324,7 @@ class MessageBubbleState extends State<MessageBubble> {
                     ),
                   ))
                 else
-                  Text(message.content),
+                  Flexible(child: Text(message.content)),
               ],
             ),
           ),
@@ -402,6 +417,7 @@ class MessageBubbleState extends State<MessageBubble> {
   }
 
   Icon _getIconByRole() {
+    debugPrint(_selectedRoleIndex.toString());
     switch (_selectedRoleIndex) {
       case Message.ROLE_USER:
         return const Icon(Icons.person);
@@ -412,5 +428,20 @@ class MessageBubbleState extends State<MessageBubble> {
       default:
         return const Icon(Icons.person);
     }
+  }
+}
+
+class StreamMessageBubble extends StatefulWidget {
+  const StreamMessageBubble({super.key});
+
+  @override
+  State<StatefulWidget> createState() => StreamMessageBubbleState();
+}
+
+class StreamMessageBubbleState extends State<StreamMessageBubble> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
   }
 }

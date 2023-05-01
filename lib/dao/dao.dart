@@ -9,7 +9,7 @@ Future<void> initDB() async {
   final db = await openDatabase("gpt.db", version: 1, onCreate: (db, version) async {
     await db.execute(
         "CREATE TABLE Message (id TEXT PRIMARY KEY, content TEXT, role INTEGER, conversation_id TEXT, up_id TEXT)");
-    await db.execute("CREATE TABLE Conversation (id TEXT PRIMARY KEY, title TEXT, model TEXT, temperature REAL, top_p REAL, n INTEGER, stream INTEGER, max_tokens INTEGER, presence_penalty REAL, frequency_penalty REAL, stop TEXT)");
+    await db.execute("CREATE TABLE Conversation (id TEXT PRIMARY KEY, title TEXT, model TEXT, temperature REAL, top_p INTEGER, n INTEGER, stream INTEGER, max_tokens INTEGER, presence_penalty REAL, frequency_penalty REAL, stop TEXT)");
     await db.execute("CREATE TABLE Prompt (id TEXT PRIMARY KEY,title TEXT, content TEXT)");
   });
 }
